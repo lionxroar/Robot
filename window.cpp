@@ -47,7 +47,7 @@ void Window::reshapeCallback(int w, int h)
   glTranslatef(0, 0, -20);    // move camera back 20 units so that it looks at the origin (or else it's in the origin)
   glMatrixMode(GL_MODELVIEW);
 
-  Globals::camera.setFrustum(60.0, double(width) / (double)height, 1.0, 1000.0);
+  Globals::camera.setFrustum(60.0, (double)(width) / (double)height, 1.0, 1000.0);
 }
 
 //What I'm Adding
@@ -251,7 +251,7 @@ Window::Window()
 float rotateAngle = 0;
 int fuckyou = 0;
 int boundingSphere = 0;
-int numRobots = 20;
+int numRobots = 10;
 clock_t Start = clock();
 int noculltimer = 0;
 int frame = 0;
@@ -261,28 +261,29 @@ extern int renderInt = 0;
 extern int bound = 0;
 extern int box = 0;
 
+Vector3 e(-20, 10, -10);
+Vector3 d(0, 0, 0);
+Vector3 up(0, 1, 0);
+
 void Window::displayCallback()
 {
-
-	//What I'm adding for lab 3
 	
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // clear color and depth buffers
   glDisable(GL_LIGHTING);
   glMatrixMode(GL_MODELVIEW);  // make sure we're in Modelview mode
 
-  glLoadMatrixd(Globals::camera.c.getPointer());
-
   Globals::camera.setPlane();
 
-  //Lab 4 
+  glLoadMatrixd(Globals::camera.c.getPointer());
 
   if (frustum == 1)
   {
-	  for (int i = 0; i < numRobots; i++)
+	  for (int i = -numRobots; i < numRobots; i++)
 	  {
-		  for (int j = 0; j < numRobots; j++)
+		  for (int j = -numRobots; j < numRobots; j++)
 		  {
 			  renderInt = 0;
+			  Vector3 x(i * 20, 0, j * 20);
 
 			  Matrix4 translate;
 			  translate.makeTranslate(i * 20, 0, j * 20);
@@ -292,12 +293,18 @@ void Window::displayCallback()
 			  bound.addChild(&wireSphere());
 			  transMatrix.addChild(&bound);
 
+
+			  //if (Globals::camera.sphereInFrustum(x,10) != Globals::camera.OUTSIDE)
 			  transMatrix.draw(Globals::camera.c);
+
 
 			  if (renderInt == 1)
 			  {
 				  Robot myBot(rotateAngle, i * 20, j * 20, boundingSphere, frustum);
-				  myBot.draw(Globals::camera.c);
+				  //if (Globals::camera.sphereInFrustum(x, 10) != Globals::camera.OUTSIDE)
+				  //{
+					  myBot.draw(Globals::camera.c);
+				  //}
 
 				  if (fuckyou)
 					  rotateAngle += .05;
@@ -314,10 +321,12 @@ void Window::displayCallback()
 
   else
   {
-	  for (int i = 0; i < numRobots; i++)
+	  for (int i = -numRobots; i < numRobots; i++)
 	  {
-		  for (int j = 0; j < numRobots; j++)
+		  for (int j = -numRobots; j < numRobots; j++)
 		  {
+			  Vector3 x(i * 20, 0, j * 20);
+
 			Matrix4 translate;
 			translate.makeTranslate(i * 20, 0, j * 20);
 			MatrixTransform transMatrix(translate);
@@ -329,7 +338,11 @@ void Window::displayCallback()
 			transMatrix.draw(Globals::camera.c);
 
 			Robot myBot(rotateAngle, i * 20, j * 20, boundingSphere, frustum);
-			myBot.draw(Globals::camera.c);
+			
+			//if (Globals::camera.sphereInFrustum(x, 10) != Globals::camera.OUTSIDE)
+			//{
+				myBot.draw(Globals::camera.c);
+			//}
 
 			if (fuckyou)
 				rotateAngle += .05;
@@ -566,6 +579,19 @@ void Window::displayCallback()
 
 void Window::keyboardCallback(unsigned char key, int x, int y)
 {
+	Matrix4 scaleOut;
+	scaleOut.makeScale(.9, .9, .9);
+
+	Matrix4 scaleIn;
+	scaleIn.makeScale(1.1, 1.1, 1.1);
+
+	Matrix4 rotateClock;
+	rotateClock.makeRotateY(10);
+
+	Matrix4 rotateCClock;
+	rotateCClock.makeRotateY(-10);
+	//Vector3 w = v*0.2;
+
 	switch (key)
 	{
 		case 66:
@@ -590,13 +616,20 @@ void Window::keyboardCallback(unsigned char key, int x, int y)
 			Globals::cube.moveUpDown(2);
 			break;
 		case 122:
-			Globals::cube.moveOutIn(2);
+			Globals::camera.c = Globals::camera.c * scaleOut;
+			//Globals::cube.moveOutIn(2);
 			break;
 		case 90:
-			Globals::cube.moveOutIn(-2);
+			Globals::camera.c = Globals::camera.c * scaleIn;
+			//Globals::cube.moveOutIn(-2);
 			break;
 		case 114:
-			Globals::cube.reset();
+			Globals::camera.c = Globals::camera.c * rotateClock;
+			//e = e + w;
+			//Globals::cube.reset();
+			break;
+		case 82:
+			Globals::camera.c = Globals::camera.c * rotateCClock;
 			break;
 		case 111:
 			Globals::cube.orbit(10);
@@ -619,8 +652,8 @@ void Window::keyboardCallback(unsigned char key, int x, int y)
 		default:
 			break;
 	}
-	Matrix4 displayMatrix;
-	displayMatrix = Globals::cube.getMatrix();
+	//Matrix4 displayMatrix;
+	//displayMatrix = Globals::cube.getMatrix();
 	//displayMatrix.printInfo();
 }
 

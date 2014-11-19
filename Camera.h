@@ -39,11 +39,13 @@ class Camera
 
 		//Cam Functions
 		Camera(Vector3, Vector3, Vector3);
+		Camera();
 		Matrix4& getInverseCamera();
 
 		//Frustum Functions
 		void setFrustum(float, float, float, float);
 		void setPlane();
+		void setCamera(Vector3, Vector3, Vector3);
 		int sphereInFrustum(Vector3, float);
 };
 

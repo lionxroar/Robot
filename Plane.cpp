@@ -10,10 +10,20 @@ void Plane::setPoints(Vector3 v1, Vector3 v2, Vector3 v3)
 
 	point = v2;
 
+	double x = normal.dot(normal, point);
+	//cout << "Point.x: " << point.x << " Point.y: " << point.y << " Point.z " << point.z << endl;;
+	//cout << "X: " << x << endl;
 	d = -(normal.dot(normal,point));
+
+	//double x = normal.dot(normal, point);
+	//cout << "D: " << d << endl;
 }
 
 float Plane::distance(Vector3 point)
 {
-	return (d + normal.dot(normal, point));
+	//cout << "D: " << d << endl;
+	double x = normal.dot(normal, point);
+	//cout << "Point.x: " << point.x << " Point.y: " << point.y << " Point.z " << point.z << endl;;
+	//cout << "normal dot point: " << x << endl;
+	return (d + x);
 }
